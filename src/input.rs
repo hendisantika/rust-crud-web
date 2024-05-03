@@ -36,4 +36,10 @@ impl Component for TextInput {
         }
         false
     }
+
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        self.value = props.value;
+        self.oninput = props.oninput;
+        true
+    }
 }
