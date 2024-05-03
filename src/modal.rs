@@ -93,4 +93,15 @@ impl Component for Modal {
             }
         }
     }
+
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        self.name = props.item.name.clone();
+        self.price = props.item.price.to_string();
+        self.item = props.item;
+        self.visible = props.visible;
+        self.error = None;
+
+        true
+    }
+
 }
