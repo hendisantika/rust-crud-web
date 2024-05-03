@@ -1,3 +1,5 @@
+use std::sync::atomic::{AtomicUsize, Ordering};
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -75,5 +77,12 @@ impl From<(String, String)> for ItemFormData {
             price,
             ..Default::default()
         }
+    }
+}
+
+impl Item {
+    pub fn generate_id() -> usize {
+        static COUNTER: AtomicUsize = AtomicUsize::new(1);
+        COUNTER.fetch_add(1, Ordering::Relaxed)
     }
 }
