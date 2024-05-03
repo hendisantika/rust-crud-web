@@ -15,3 +15,8 @@ pub struct TextInput {
 pub enum TextInputMsg {
     Changed(String),
 }
+
+impl Component for TextInput {
+    type Message = TextInputMsg;
+    type Properties = TextInputProps;
+}
