@@ -1,4 +1,4 @@
-use yew::{Callback, Component, ComponentLink, InputData, Properties, ShouldRender};
+use yew::{Callback, Component, ComponentLink, Html, InputData, Properties, ShouldRender};
 
 #[derive(Properties, Clone)]
 pub struct TextInputProps {
@@ -41,5 +41,15 @@ impl Component for TextInput {
         self.value = props.value;
         self.oninput = props.oninput;
         true
+    }
+
+    fn view(&self) -> Html {
+        html! {
+            <input
+                class="input"
+                value=&self.value
+                oninput=self.link.callback(|e: InputData| TextInputMsg::Changed(e.value))
+            />
+        }
     }
 }
