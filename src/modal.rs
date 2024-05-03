@@ -21,3 +21,10 @@ pub struct Modal {
     error: Option<Vec<ItemValidationErr>>,
     link: ComponentLink<Self>,
 }
+
+pub enum ModalMsg {
+    HideModal,
+    SetName(String),
+    SetPrice(String),
+    Save,
+}
