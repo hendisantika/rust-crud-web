@@ -6,3 +6,9 @@ pub struct Item {
     pub name: String,
     pub price: f32,
 }
+
+#[derive(Default, PartialEq)]
+pub struct ItemFormData {
+    pub name: String,
+    pub price: String,
+}
