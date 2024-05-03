@@ -2,6 +2,8 @@ use yew::{Component, ComponentLink, ShouldRender};
 use yew::format::Json;
 use yew::services::storage::{Area, StorageService};
 
+use crate::item::Item;
+
 mod item;
 mod modal;
 mod input;
@@ -12,4 +14,10 @@ pub struct Model {
     storage: StorageService,
     state: List,
     link: ComponentLink<Self>,
+}
+
+pub struct List {
+    items: Vec<Item>,
+    modal_visible: bool,
+    current_item: Option<Item>,
 }
