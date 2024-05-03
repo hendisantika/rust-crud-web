@@ -1,8 +1,9 @@
 use yew::{Component, ComponentLink, Html, html, ShouldRender};
 use yew::format::Json;
-use yew::services::storage::{Area, StorageService};
 
 use crate::item::Item;
+
+// use yew::services::storage::{Area, StorageService};
 
 mod item;
 mod modal;
