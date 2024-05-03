@@ -1,4 +1,4 @@
-use yew::{Component, ComponentLink, ShouldRender};
+use yew::{Component, ComponentLink, Html, html, ShouldRender};
 use yew::format::Json;
 use yew::services::storage::{Area, StorageService};
 
@@ -111,4 +111,42 @@ impl Component for Model {
         false
     }
 
+    fn view(&self) -> Html {
+        let modal = match self.state.current_item.as_ref() {
+            None => {
+                html! {
+          <Modal: item=Item { ..Default::default() } visible=self.state.modal_visible on_close=self.link.callback(|_| { Msg::HiddedModal }) on_save=self.link.callback(Msg::Saved) />
+        }
+            }
+
+            Some(item) => {
+                html! {
+          <Modal: item=item visible=self.state.modal_visible on_close=self.link.callback(|_| { Msg::HiddedModal }) on_save=self.link.callback(Msg::Saved) />
+        }
+            }
+        };
+
+        html! {
+      <>
+        {modal}
+        <section class="hero is-small is-info is-bold">
+          <div class="hero-body">
+            <div class="container">
+              <p class="title">
+                {{ "Items" }}
+              </p>
+              <p class="subtitle">
+                {{"List of items"}}
+              </p>
+            </div>
+          </div>
+        </section>
+        <main class="section">
+          <div class="container">
+            {{self.view_table()}}
+          </div>
+        </main>
+      </>
+    }
+    }
 }
