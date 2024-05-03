@@ -12,3 +12,9 @@ pub struct ItemFormData {
     pub name: String,
     pub price: String,
 }
+
+#[derive(Debug, PartialEq)]
+pub struct ValidatedItem {
+    name: String,
+    price: String,
+}
