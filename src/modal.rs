@@ -1,7 +1,7 @@
-use yew::{Callback, Component, ComponentLink, Properties, ShouldRender};
+use yew::{Callback, Component, ComponentLink, Html, html, Properties, ShouldRender};
 use yew::services::ConsoleService;
 
-use crate::item::Item;
+use crate::item::{Item, ItemValidationErr};
 
 #[derive(Properties, Clone)]
 pub struct ModalProperties {
@@ -104,4 +104,83 @@ impl Component for Modal {
         true
     }
 
+    fn view(&self) -> Html {
+        let visible = if self.visible { "is-active" } else { "" };
+
+        let error = |e: &ItemValidationErr| {
+            match e {
+                ItemValidationErr::InvalidName => html! {
+          <div>
+            {"Name is required"}
+          </div>
+        },
+                ItemValidationErr::InvalidPrice => html! {
+          <div>
+            {"Invalid Price"}
+          </div>
+        }
+            }
+        };
+
+        let errors = match self.error.as_ref() {
+            None => {
+                html! {}
+            }
+
+            Some(errors) => {
+                html! {
+          <div class="notification is-danger">
+            {for errors.iter().map(error)}
+          </div>
+        }
+            }
+        };
+
+        let title = if self.item.name.is_empty() {
+            "New Item"
+        } else {
+            "Update Item"
+        };
+
+        html! {
+      <div class=("modal", visible)>
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <form onsubmit=self.link.callback(|e: yew::events::FocusEvent| {
+            e.prevent_default();
+
+            ModalMsg::Save
+          })>
+            <header class="modal-card-head">
+              <p class="modal-card-title">{title}</p>
+              <a onclick=self.link.callback(|_| ModalMsg::HideModal) class="delete" aria-label="close"></a>
+            </header>
+            <section class="modal-card-body">
+              {errors}
+              <div class="field">
+                <label class="label">{"Name"}</label>
+                <div class="control">
+                <TextInput value=&self.name oninput=self.link.callback(|val: String| ModalMsg::SetName(val))/>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">{"Price"}</label>
+                <p class="control has-icons-left has-icons-right">
+                  <TextInput value=&self.price oninput=self.link.callback(|val: String| ModalMsg::SetPrice(val))/>
+                  <span class="icon is-small is-left">
+                    <i class="icon ion-md-cash"></i>
+                  </span>
+                </p>
+              </div>
+            </section>
+            <footer class="modal-card-foot">
+              <button type="submit" class="button is-info">{"Save"}</button>
+              <a onclick=self.link.callback(|_| ModalMsg::HideModal) class="button">{"Cancel"}</a>
+            </footer>
+          </form>
+        </div>
+      </div>
+    }
+    }
 }
