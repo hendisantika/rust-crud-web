@@ -32,4 +32,17 @@ pub enum ModalMsg {
 impl Component for Modal {
     type Message = ModalMsg;
     type Properties = ModalProperties;
+
+    fn create(prop: Self::Properties, link: ComponentLink<Self>) -> Self {
+        Self {
+            item: prop.item,
+            name: "".to_string(),
+            price: "".to_string(),
+            visible: prop.visible,
+            on_close: prop.on_close,
+            on_save: prop.on_save,
+            error: None,
+            link,
+        }
+    }
 }
