@@ -19,4 +19,12 @@ pub enum TextInputMsg {
 impl Component for TextInput {
     type Message = TextInputMsg;
     type Properties = TextInputProps;
+
+    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+        TextInput {
+            value: props.value,
+            oninput: props.oninput,
+            link,
+        }
+    }
 }
