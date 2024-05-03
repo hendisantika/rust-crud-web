@@ -54,4 +54,56 @@ impl Component for Model {
 
         Model { storage, state, link }
     }
+
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::New => {
+                self.state.modal_visible = true;
+                self.state.current_item = None;
+
+                true
+            }
+
+            Msg::HiddenModal => {
+                self.state.modal_visible = false;
+                true
+            }
+
+            Msg::Saved(item) => {
+                if item.id == 0 {
+                    let mut item = item;
+                    item.id = Item::generate_id();
+                    self.state.items.push(item);
+                } else {
+                    let index = self.state.items.iter().position(|i| i.id == item.id).unwrap();
+                    self.state.items[index] = item;
+                }
+
+                self.update(Msg::HiddenModal);
+                self.update(Msg::Store);
+
+                true
+            }
+
+            Msg::Edit(idx) => {
+                let item = self.state.items[idx].clone();
+                self.state.current_item = Some(item);
+                self.state.modal_visible = true;
+
+                true
+            }
+
+            Msg::Remove(idx) => {
+                self.state.items.remove(idx);
+                self.update(Msg::Store);
+
+                true
+            }
+
+            Msg::Store => {
+                self.storage.store(KEY, Json(&self.state.items));
+                false
+            }
+        }
+    }
 }
