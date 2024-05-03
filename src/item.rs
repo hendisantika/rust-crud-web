@@ -64,3 +64,16 @@ impl ItemFormData {
         }
     }
 }
+
+impl From<(String, String)> for ItemFormData {
+    fn from(fd: (String, String)) -> Self {
+        let name = fd.0;
+        let price = fd.1;
+
+        Self {
+            name,
+            price,
+            ..Default::default()
+        }
+    }
+}
