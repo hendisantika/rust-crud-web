@@ -27,4 +27,13 @@ impl Component for TextInput {
             link,
         }
     }
+
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            TextInputMsg::Changed(value) => {
+                self.oninput.emit(value);
+            }
+        }
+        false
+    }
 }
