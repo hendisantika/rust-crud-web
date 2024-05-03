@@ -24,3 +24,27 @@ pub enum ItemValidationErr {
     InvalidName,
     InvalidPrice,
 }
+
+impl ItemFormData {
+    pub fn validate(form_data: &ItemFormData) -> Result<ValidatedItem, Vec<ItemValidationErr>> {
+        let mut errors = vec![];
+
+        let name = ItemFormData::validate_name(String::from(&form_data.name))
+            .unwrap_or_else(|e| {
+                errors.push(e);
+                String::from("")
+            });
+
+        let price = ItemFormData::validate_price(String::from(&form_data.price))
+            .unwrap_or_else(|e| {
+                errors.push(e);
+                String::from("")
+            });
+
+        if !errors.is_empty() {
+            return Err(errors);
+        }
+
+        Ok(ValidatedItem { name, price })
+    }
+}
