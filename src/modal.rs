@@ -28,3 +28,8 @@ pub enum ModalMsg {
     SetPrice(String),
     Save,
 }
+
+impl Component for Modal {
+    type Message = ModalMsg;
+    type Properties = ModalProperties;
+}
