@@ -45,4 +45,52 @@ impl Component for Modal {
             link,
         }
     }
+
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            ModalMsg::HideModal => {
+                self.visible = false;
+                self.on_close.emit(true);
+
+                true
+            }
+
+            ModalMsg::SetName(name) => {
+                self.name = name;
+
+                true
+            }
+
+            ModalMsg::SetPrice(price) => {
+                self.price = price;
+
+                true
+            }
+
+            ModalMsg::Save => {
+                let form_data: ItemFormData = (self.name.clone(), self.price.clone()).into();
+                let valid = ItemFormData::validate(&form_data);
+
+                match valid {
+                    Ok(_v) => {
+                        self.visible = false;
+                        self.on_save.emit(Item {
+                            id: self.item.id,
+                            name: form_data.name,
+                            price: form_data.price.parse().unwrap(),
+                            ..Default::default()
+                        });
+
+                        //self.error = None;
+                        ConsoleService::info("Saved");
+                    },
+                    Err(e) => {
+                        self.error = Some(e)
+                    }
+                }
+
+                true
+            }
+        }
+    }
 }
