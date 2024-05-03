@@ -18,3 +18,9 @@ pub struct ValidatedItem {
     name: String,
     price: String,
 }
+
+#[derive(Debug, PartialEq)]
+pub enum ItemValidationErr {
+    InvalidName,
+    InvalidPrice,
+}
