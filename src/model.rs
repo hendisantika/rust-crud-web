@@ -21,3 +21,12 @@ pub struct List {
     modal_visible: bool,
     current_item: Option<Item>,
 }
+
+pub enum Msg {
+    New,
+    HiddenModal,
+    Saved(Item),
+    Edit(usize),
+    Remove(usize),
+    Store,
+}
