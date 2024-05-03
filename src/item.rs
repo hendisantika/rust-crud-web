@@ -55,4 +55,12 @@ impl ItemFormData {
             Err(ItemValidationErr::InvalidName)
         }
     }
+
+    fn validate_price(price: String) -> Result<String, ItemValidationErr> {
+        if price.parse::<f64>().is_ok() {
+            Ok(price)
+        } else {
+            Err(ItemValidationErr::InvalidPrice)
+        }
+    }
 }
