@@ -5,3 +5,9 @@ pub struct TextInputProps {
     pub value: String,
     pub oninput: Callback<String>,
 }
+
+pub struct TextInput {
+    value: String,
+    link: ComponentLink<Self>,
+    oninput: Callback<String>,
+}
