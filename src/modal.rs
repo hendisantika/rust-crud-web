@@ -10,3 +10,14 @@ pub struct ModalProperties {
     pub on_close: Callback<bool>,
     pub on_save: Callback<Item>,
 }
+
+pub struct Modal {
+    pub item: Item,
+    pub name: String,
+    pub price: String,
+    pub visible: bool,
+    pub on_close: Callback<bool>,
+    pub on_save: Callback<Item>,
+    error: Option<Vec<ItemValidationErr>>,
+    link: ComponentLink<Self>,
+}
