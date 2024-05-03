@@ -106,4 +106,9 @@ impl Component for Model {
             }
         }
     }
+
+    fn change(&mut self, _props: Self::Properties) -> bool {
+        false
+    }
+
 }
