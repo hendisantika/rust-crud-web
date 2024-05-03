@@ -150,3 +150,29 @@ impl Component for Model {
     }
     }
 }
+
+impl Model {
+    fn view_table(&self) -> Html {
+        html! {
+      <>
+        <table class="table is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>{"Id"}</th>
+              <th>{"Name"}</th>
+              <th>{"Price"}</th>
+              <th colspan="2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {for self.state.items.iter().enumerate().map(|idx_itm| self.view_item(idx_itm))}
+          </tbody>
+        </table>
+
+        <div>
+          <button onclick=self.link.callback(|_| { Msg::New }) type="button" class="button is-info">{"Add"}</button>
+        </div>
+      </>
+    }
+    }
+}
