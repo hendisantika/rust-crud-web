@@ -47,4 +47,12 @@ impl ItemFormData {
 
         Ok(ValidatedItem { name, price })
     }
+
+    fn validate_name(name: String) -> Result<String, ItemValidationErr> {
+        if name.len() > 1 {
+            Ok(name)
+        } else {
+            Err(ItemValidationErr::InvalidName)
+        }
+    }
 }
