@@ -11,3 +11,7 @@ pub struct TextInput {
     link: ComponentLink<Self>,
     oninput: Callback<String>,
 }
+
+pub enum TextInputMsg {
+    Changed(String),
+}
