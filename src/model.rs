@@ -30,3 +30,8 @@ pub enum Msg {
     Remove(usize),
     Store,
 }
+
+impl Component for Model {
+    type Message = Msg;
+    type Properties = ();
+}
