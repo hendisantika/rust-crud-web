@@ -13,7 +13,7 @@ repository = "https://github.com/hendisantika/rust-crud-web"
 yew = { version = "0.21.0", features = ["csr"] }
 serde = { version = "1.0.200", features = ["derive"] }
 serde_json = "1.0.116"
-gloo-storage = "0.3.0"
+gloo-storage = "0.4.0"
 wasm-bindgen = "0.2.92"
 web-sys = { version = "0.3.69", features = ["HtmlInputElement"] }
 
