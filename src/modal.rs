@@ -171,7 +171,7 @@ impl Modal {
 
         html! {
             <div class="notification is-danger">
-                {for self.errors.iter().map(|e| html! { <div>{e.message()}</div> })}
+                {self.errors.iter().map(|e| html! { <div>{e.message()}</div> }).collect::<Html>()}
             </div>
         }
     }

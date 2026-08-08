@@ -390,12 +390,6 @@ dependencies = [
 
 [[package]]
 name = "implicit-clone"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af3d77000817fd9e7db159e8d52ed9b5941a2cdbfbdc8ca646e59887ae2b2dd1"
-
-[[package]]
-name = "implicit-clone"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1689b939ee35e3a075b0834b5672efd43aec8a6e81a1c6002b76a5ca2f211ae0"
@@ -584,7 +578,6 @@ name = "rust-crud-web"
 version = "0.1.0"
 dependencies = [
  "gloo-storage 0.4.0",
- "implicit-clone 0.4.1",
  "serde",
  "serde_json",
  "wasm-bindgen",
@@ -914,9 +907,9 @@ dependencies = [
 
 [[package]]
 name = "web-sys"
-version = "0.3.69"
+version = "0.3.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77afa9a11836342370f4817622a2f0f418b134426d91a82dfb48f532d2ec13ef"
+checksum = "4f2dfbb17949fa2088e5d39408c48368947b86f7834484e87b73de55bc14d97d"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
@@ -940,7 +933,7 @@ dependencies = [
  "console_error_panic_hook",
  "futures",
  "gloo",
- "implicit-clone 0.6.0",
+ "implicit-clone",
  "indexmap",
  "js-sys",
  "rustversion",

@@ -194,7 +194,10 @@ impl Model {
                 </tr>
             }
         } else {
-            html! { for items.iter().map(|item| self.view_item(ctx, item)) }
+            items
+                .iter()
+                .map(|item| self.view_item(ctx, item))
+                .collect::<Html>()
         };
 
         html! {
