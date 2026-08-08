@@ -1,55 +1,37 @@
-use yew::{Callback, Component, ComponentLink, Html, InputData, Properties, ShouldRender};
+use web_sys::HtmlInputElement;
+use yew::{function_component, html, Callback, Html, InputEvent, Properties, TargetCast};
 
-#[derive(Properties, Clone)]
+#[derive(Properties, PartialEq)]
 pub struct TextInputProps {
     pub value: String,
+    /// Emits the current text on every keystroke.
     pub oninput: Callback<String>,
+    #[prop_or_default]
+    pub placeholder: String,
+    #[prop_or_default]
+    pub autofocus: bool,
 }
 
-pub struct TextInput {
-    value: String,
-    link: ComponentLink<Self>,
-    oninput: Callback<String>,
-}
+/// A thin, controlled wrapper around `<input class="input" />`.
+#[function_component(TextInput)]
+pub fn text_input(props: &TextInputProps) -> Html {
+    let oninput = {
+        let emit = props.oninput.clone();
 
-pub enum TextInputMsg {
-    Changed(String),
-}
+        Callback::from(move |e: InputEvent| {
+            let input: HtmlInputElement = e.target_unchecked_into();
+            emit.emit(input.value());
+        })
+    };
 
-impl Component for TextInput {
-    type Message = TextInputMsg;
-    type Properties = TextInputProps;
-
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        TextInput {
-            value: props.value,
-            oninput: props.oninput,
-            link,
-        }
-    }
-
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            TextInputMsg::Changed(value) => {
-                self.oninput.emit(value);
-            }
-        }
-        false
-    }
-
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.value = props.value;
-        self.oninput = props.oninput;
-        true
-    }
-
-    fn view(&self) -> Html {
-        html! {
-            <input
-                class="input"
-                value=&self.value
-                oninput=self.link.callback(|e: InputData| TextInputMsg::Changed(e.value))
-            />
-        }
+    html! {
+        <input
+            class="input"
+            type="text"
+            value={props.value.clone()}
+            placeholder={props.placeholder.clone()}
+            autofocus={props.autofocus}
+            {oninput}
+        />
     }
 }

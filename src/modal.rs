@@ -1,29 +1,26 @@
-use yew::{Callback, Component, ComponentLink, Html, html, Properties, ShouldRender};
-use yew::services::ConsoleService;
+use yew::{html, Callback, Component, Context, Html, MouseEvent, Properties, SubmitEvent};
 
-use crate::item::{Item, ItemValidationErr};
+use crate::input::TextInput;
+use crate::item::{Item, ItemFormData, ItemValidationErr};
 
-#[derive(Properties, Clone)]
-pub struct ModalProperties {
+#[derive(Properties, PartialEq)]
+pub struct ModalProps {
+    /// The record being edited, or `Item::default()` when creating a new one.
     pub item: Item,
-    pub visible: bool,
-    pub on_close: Callback<bool>,
+    pub on_close: Callback<()>,
     pub on_save: Callback<Item>,
 }
 
+/// The create/update dialog. It is mounted only while it is open, so its draft
+/// state always starts from the item handed over by the parent.
 pub struct Modal {
-    pub item: Item,
-    pub name: String,
-    pub price: String,
-    pub visible: bool,
-    pub on_close: Callback<bool>,
-    pub on_save: Callback<Item>,
-    error: Option<Vec<ItemValidationErr>>,
-    link: ComponentLink<Self>,
+    name: String,
+    price: String,
+    errors: Vec<ItemValidationErr>,
 }
 
 pub enum ModalMsg {
-    HideModal,
+    Close,
     SetName(String),
     SetPrice(String),
     Save,
@@ -31,62 +28,53 @@ pub enum ModalMsg {
 
 impl Component for Modal {
     type Message = ModalMsg;
-    type Properties = ModalProperties;
+    type Properties = ModalProps;
 
-    fn create(prop: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self {
-            item: prop.item,
-            name: "".to_string(),
-            price: "".to_string(),
-            visible: prop.visible,
-            on_close: prop.on_close,
-            on_save: prop.on_save,
-            error: None,
-            link,
-        }
+    fn create(ctx: &Context<Self>) -> Self {
+        Self::draft_from(&ctx.props().item)
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            ModalMsg::HideModal => {
-                self.visible = false;
-                self.on_close.emit(true);
+    fn changed(&mut self, ctx: &Context<Self>, old_props: &Self::Properties) -> bool {
+        // The parent hands over fresh callbacks on every render, so props are never
+        // equal by value. Only a genuinely different record may discard the draft.
+        if old_props.item != ctx.props().item {
+            *self = Self::draft_from(&ctx.props().item);
+        }
 
-                true
+        true
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            ModalMsg::Close => {
+                ctx.props().on_close.emit(());
+                false
             }
 
             ModalMsg::SetName(name) => {
                 self.name = name;
-
                 true
             }
 
             ModalMsg::SetPrice(price) => {
                 self.price = price;
-
                 true
             }
 
             ModalMsg::Save => {
-                let form_data: ItemFormData = (self.name.clone(), self.price.clone()).into();
-                let valid = ItemFormData::validate(&form_data);
+                let form_data = ItemFormData::from((self.name.clone(), self.price.clone()));
 
-                match valid {
-                    Ok(_v) => {
-                        self.visible = false;
-                        self.on_save.emit(Item {
-                            id: self.item.id,
-                            name: form_data.name,
-                            price: form_data.price.parse().unwrap(),
-                            ..Default::default()
+                match form_data.validate() {
+                    Ok(valid) => {
+                        self.errors.clear();
+                        ctx.props().on_save.emit(Item {
+                            id: ctx.props().item.id,
+                            name: valid.name,
+                            price: valid.price,
                         });
-
-                        //self.error = None;
-                        ConsoleService::info("Saved");
-                    },
-                    Err(e) => {
-                        self.error = Some(e)
                     }
+
+                    Err(errors) => self.errors = errors,
                 }
 
                 true
@@ -94,93 +82,97 @@ impl Component for Modal {
         }
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.name = props.item.name.clone();
-        self.price = props.item.price.to_string();
-        self.item = props.item;
-        self.visible = props.visible;
-        self.error = None;
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let link = ctx.link();
 
-        true
-    }
+        let close = link.callback(|_: MouseEvent| ModalMsg::Close);
+        let onsubmit = link.callback(|e: SubmitEvent| {
+            e.prevent_default();
+            ModalMsg::Save
+        });
 
-    fn view(&self) -> Html {
-        let visible = if self.visible { "is-active" } else { "" };
-
-        let error = |e: &ItemValidationErr| {
-            match e {
-                ItemValidationErr::InvalidName => html! {
-          <div>
-            {"Name is required"}
-          </div>
-        },
-                ItemValidationErr::InvalidPrice => html! {
-          <div>
-            {"Invalid Price"}
-          </div>
-        }
-            }
-        };
-
-        let errors = match self.error.as_ref() {
-            None => {
-                html! {}
-            }
-
-            Some(errors) => {
-                html! {
-          <div class="notification is-danger">
-            {for errors.iter().map(error)}
-          </div>
-        }
-            }
-        };
-
-        let title = if self.item.name.is_empty() {
+        let title = if ctx.props().item.is_new() {
             "New Item"
         } else {
             "Update Item"
         };
 
         html! {
-      <div class=("modal", visible)>
-        <div class="modal-background"></div>
-        <div class="modal-card">
-          <form onsubmit=self.link.callback(|e: yew::events::FocusEvent| {
-            e.prevent_default();
+            <div class="modal is-active">
+                <div class="modal-background" onclick={close.clone()}></div>
+                <div class="modal-card">
+                    <form {onsubmit}>
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">{title}</p>
+                            <button
+                                type="button"
+                                onclick={close.clone()}
+                                class="delete"
+                                aria-label="close"
+                            />
+                        </header>
+                        <section class="modal-card-body">
+                            {self.view_errors()}
+                            <div class="field">
+                                <label class="label">{"Name"}</label>
+                                <div class="control">
+                                    <TextInput
+                                        value={self.name.clone()}
+                                        placeholder="e.g. Mechanical Keyboard"
+                                        autofocus=true
+                                        oninput={link.callback(ModalMsg::SetName)}
+                                    />
+                                </div>
+                            </div>
 
-            ModalMsg::Save
-          })>
-            <header class="modal-card-head">
-              <p class="modal-card-title">{title}</p>
-              <a onclick=self.link.callback(|_| ModalMsg::HideModal) class="delete" aria-label="close"></a>
-            </header>
-            <section class="modal-card-body">
-              {errors}
-              <div class="field">
-                <label class="label">{"Name"}</label>
-                <div class="control">
-                <TextInput value=&self.name oninput=self.link.callback(|val: String| ModalMsg::SetName(val))/>
+                            <div class="field">
+                                <label class="label">{"Price"}</label>
+                                <div class="control has-icons-left">
+                                    <TextInput
+                                        value={self.price.clone()}
+                                        placeholder="e.g. 49.90"
+                                        oninput={link.callback(ModalMsg::SetPrice)}
+                                    />
+                                    <span class="icon is-small is-left">
+                                        <i class="icon ion-md-cash"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+                        <footer class="modal-card-foot">
+                            <button type="submit" class="button is-info">{"Save"}</button>
+                            <button type="button" onclick={close} class="button">{"Cancel"}</button>
+                        </footer>
+                    </form>
                 </div>
-              </div>
-
-              <div class="field">
-                <label class="label">{"Price"}</label>
-                <p class="control has-icons-left has-icons-right">
-                  <TextInput value=&self.price oninput=self.link.callback(|val: String| ModalMsg::SetPrice(val))/>
-                  <span class="icon is-small is-left">
-                    <i class="icon ion-md-cash"></i>
-                  </span>
-                </p>
-              </div>
-            </section>
-            <footer class="modal-card-foot">
-              <button type="submit" class="button is-info">{"Save"}</button>
-              <a onclick=self.link.callback(|_| ModalMsg::HideModal) class="button">{"Cancel"}</a>
-            </footer>
-          </form>
-        </div>
-      </div>
+            </div>
+        }
     }
+}
+
+impl Modal {
+    fn draft_from(item: &Item) -> Self {
+        Self {
+            name: item.name.clone(),
+            // A brand new item starts with an empty price field rather than "0".
+            price: if item.is_new() {
+                String::new()
+            } else {
+                item.formatted_price()
+            },
+            errors: Vec::new(),
+        }
+    }
+
+    fn view_errors(&self) -> Html {
+        if self.errors.is_empty() {
+            return Html::default();
+        }
+
+        html! {
+            <div class="notification is-danger">
+                {for self.errors.iter().map(|e| html! { <div>{e.message()}</div> })}
+            </div>
+        }
     }
 }
