@@ -22,12 +22,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    ignore:
-      # Pinned on purpose: implicit-clone 0.4.2+ builds against a different
-      # indexmap major than yew 0.21, which breaks the build. Remove this
-      # entry when the project moves to a newer yew. See README.
-      - dependency-name: "implicit-clone"
-        versions: [">= 0.4.2"]
 
   # GitHub Actions used by the CI workflow
   - package-ecosystem: "github-actions"

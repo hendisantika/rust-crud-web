@@ -1,13 +1,13 @@
 # rust-crud-web
 
 A small, dependency-light **CRUD** web application written entirely in **Rust**, compiled to
-**WebAssembly** and rendered in the browser with [Yew](https://yew.rs) 0.21.
+**WebAssembly** and rendered in the browser with [Yew](https://yew.rs) 0.23.
 
 Items are created, listed, searched, updated and removed fully client-side, and the list is
 persisted in the browser's `localStorage` — there is no backend to run.
 
 ![Rust](https://img.shields.io/badge/rust-2021-orange)
-![Yew](https://img.shields.io/badge/yew-0.21-green)
+![Yew](https://img.shields.io/badge/yew-0.23-green)
 ![WebAssembly](https://img.shields.io/badge/wasm-32--unknown--unknown-blue)
 
 ## Features
@@ -25,16 +25,12 @@ persisted in the browser's `localStorage` — there is no backend to run.
 
 | Tool | Version | Notes |
 | --- | --- | --- |
-| Rust | 1.78+ (stable) | install via [rustup](https://rustup.rs) |
+| Rust | 1.84+ (stable) | Yew 0.23 needs Cargo's resolver v3; install via [rustup](https://rustup.rs) |
 | `wasm32-unknown-unknown` target | — | `rustup target add wasm32-unknown-unknown` |
 | [Trunk](https://trunkrs.dev) | 0.21+ | `cargo install trunk --locked` |
 
 `rust-toolchain.toml` already requests the wasm target plus `clippy` and `rustfmt`, so rustup
 installs them for you on the first build.
-
-> Trunk 0.21.14+ needs rustc 1.81 or newer. On an older toolchain either install a matching
-> Trunk (`cargo install trunk --version 0.21.8 --locked`) or grab a prebuilt binary from the
-> [Trunk releases](https://github.com/trunk-rs/trunk/releases) page.
 
 ## Running
 
@@ -85,12 +81,6 @@ stays correct while the list is filtered by the search box.
 
 Stored data lives under the `yew.rust.crud.database` key. Clearing your browser's site data
 resets the application.
-
-## Note on `implicit-clone`
-
-`Cargo.toml` pins `implicit-clone = "=0.4.1"` on purpose: version 0.4.2 and later build against a
-different `indexmap` major version than Yew 0.21 does, which makes the build fail with a
-`IMap: From<IndexMap>` trait error. Keep the pin until the project moves to a newer Yew.
 
 ## License
 
